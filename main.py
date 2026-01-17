@@ -16,17 +16,23 @@ load_dotenv()
 
 USERNAME = os.getenv("IG_USERNAME")
 
-print("USERNAME:", os.getenv("IG_USERNAME"))
+print("USERNAME:", USERNAME)
 PASSWORD = os.getenv("IG_PASSWORD")
-print("PASSWORD:", os.getenv("IG_PASSWORD"))
+print("PASSWORD:", PASSWORD)
 
 GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
 
-print("GOOGLE_SHEET_URL:", os.getenv("GOOGLE_SHEET_URL"))
+print("GOOGLE_SHEET_URL:", GOOGLE_SHEET_URL)
 
 
-if not USERNAME or not PASSWORD or GOOGLE_SHEET_URL:
-    raise ValueError("Instagram credentials or GOOGLE_SHEET_URL not found in environment variables")
+if not USERNAME:
+    raise ValueError("Instagram Username not found in environment variables")
+
+if not PASSWORD:
+    raise ValueError("Instagram PASSWORD not found in environment variables")
+
+if not GOOGLE_SHEET_URL:
+    raise ValueError("GOOGLE_SHEET_URL not found in environment variables")
 # ---------- CONFIG ----------
 VIDEO_TEMPLATE = "template.mp4"
 OUTPUT_VIDEO = "output.mp4"
