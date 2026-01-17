@@ -18,6 +18,8 @@ USERNAME = os.getenv("IG_USERNAME")
 PASSWORD = os.getenv("IG_PASSWORD")
 GOOGLE_SHEET_URL= os.getenv("GOOGLE_SHEET_URL")
 
+if not USERNAME or not PASSWORD or GOOGLE_SHEET_URL:
+    raise ValueError("Instagram credentials or GOOGLE_SHEET_URL not found in environment variables")
 # ---------- CONFIG ----------
 VIDEO_TEMPLATE = "template.mp4"
 OUTPUT_VIDEO = "output.mp4"
