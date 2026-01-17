@@ -34,9 +34,12 @@ if not PASSWORD:
 if not GOOGLE_SHEET_URL:
     raise ValueError("GOOGLE_SHEET_URL not found in environment variables")
 # ---------- CONFIG ----------
-VIDEO_TEMPLATE = "template.mp4"
-OUTPUT_VIDEO = "output.mp4"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder where main.py is
 
+VIDEO_TEMPLATE = os.path.join(BASE_DIR, "template.mp4")
+OUTPUT_VIDEO = os.path.join(BASE_DIR, "output.mp4")
+
+MUSIC_FILE = os.path.join(BASE_DIR, "music.mp3")
 
 
 def load_google_sheet(url):
@@ -61,7 +64,7 @@ caption = str(row["Caption"])
 
 # ---------- LOAD VIDEO ----------
 video = VideoFileClip(VIDEO_TEMPLATE)
-audio = AudioFileClip("music.mp3") \
+audio = AudioFileClip(MUSIC_FILE) \
         .subclip(0, video.duration) \
         .volumex(0.7) \
         .set_fps(44100)

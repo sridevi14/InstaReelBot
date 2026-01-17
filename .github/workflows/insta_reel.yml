@@ -10,26 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Get your repo code
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # Step 2: Set up Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
+      # Step 3: Install FFmpeg (needed for MoviePy)
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
+      # Step 4: Install Python dependencies
       - name: Install Python Dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
+      # Step 5: Debug — list files to make sure media exists
+      - name: List Files
+        run: ls -R
+
+      # Step 6: Run your bot
       - name: Run Bot
         env:
           IG_USERNAME: ${{ secrets.IG_USERNAME }}
           IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
           GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
-
-        run: |
-          python main.py
+        run: python main.py
