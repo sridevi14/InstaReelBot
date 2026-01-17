@@ -15,8 +15,15 @@ import os
 load_dotenv()
 
 USERNAME = os.getenv("IG_USERNAME")
+
+print("USERNAME:", os.getenv("IG_USERNAME"))
 PASSWORD = os.getenv("IG_PASSWORD")
-GOOGLE_SHEET_URL= os.getenv("GOOGLE_SHEET_URL")
+print("PASSWORD:", os.getenv("IG_PASSWORD"))
+
+GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
+
+print("GOOGLE_SHEET_URL:", os.getenv("GOOGLE_SHEET_URL"))
+
 
 if not USERNAME or not PASSWORD or GOOGLE_SHEET_URL:
     raise ValueError("Instagram credentials or GOOGLE_SHEET_URL not found in environment variables")
