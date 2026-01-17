@@ -5,7 +5,7 @@ from datetime import date
 from PIL import Image, ImageDraw, ImageFont,ImageFilter
 import numpy as np
 import textwrap
-import re
+import re,json,base64
 from instagrapi import Client
 
 # ENV
@@ -178,15 +178,21 @@ final_video.write_videofile(
 
 print("Final duration:", final_video.duration)
 print("Has audio:", final_video.audio is not None)
+
+
 # ---------- UPLOAD TO INSTAGRAM ----------
 # Login
 cl = Client()
-cl.login(USERNAME, PASSWORD)
+session_b64 = os.getenv("IG_SESSION")
+if not session_b64:
+    raise ValueError("IG_SESSION not found in .env")
+# Load session from GitHub secret
+session_data = json.loads(base64.b64decode(session_b64))
+cl.set_settings(session_data)
+print("Session loaded! You can upload now.")
 
 # Upload photo
 photo_path = "output.mp4"
 cl.video_upload(photo_path, caption)
 
 print("Upload successful!")
-
-
