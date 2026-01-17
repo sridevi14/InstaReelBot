@@ -33,12 +33,13 @@ if not PASSWORD:
 
 if not GOOGLE_SHEET_URL:
     raise ValueError("GOOGLE_SHEET_URL not found in environment variables")
-# ---------- CONFIG ----------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # folder where main.py is
 
+
+# ---------- CONFIG ----------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 VIDEO_TEMPLATE = os.path.join(BASE_DIR, "template.mp4")
 OUTPUT_VIDEO = os.path.join(BASE_DIR, "output.mp4")
-
+FONT_PATH = os.path.join(BASE_DIR, "fonts", "Roboto-Bold.ttf")
 MUSIC_FILE = os.path.join(BASE_DIR, "music.mp3")
 
 
@@ -88,7 +89,7 @@ shadow_space = shadow_blur + shadow_offset
 img = Image.new("RGBA", (w + shadow_space * 2, h + shadow_space * 2), (0, 0, 0, 0))
 draw = ImageDraw.Draw(img)
 
-font = ImageFont.truetype("arialbd.ttf", font_size)
+font = ImageFont.truetype(FONT_PATH, font_size)
 
 # Wrap text
 max_chars_per_line = 25
