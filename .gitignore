@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+
+# Virtual Environments
+venv/
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Video / Audio Outputs
+output.mp4
+temp-audio.m4a
+
+# Media Assets (optional if you don’t want to push)
+music.mp3
+template.mp4
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
