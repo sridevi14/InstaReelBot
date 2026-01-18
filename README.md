@@ -123,7 +123,9 @@ InstaReelBot/
 If you like this project, you can support it:
 
 ☕ [Buy me a coffee](https://buymeacoffee.com/srideviman7)
+### Connect with me
 
+📸 [Follow me on Instagram](https://www.instagram.com/sridevi.tech)
 ## License
 
 MIT License – free to use, modify, and distribute.
