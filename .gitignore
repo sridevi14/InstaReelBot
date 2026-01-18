@@ -17,6 +17,14 @@ Thumbs.db
 # Video / Audio Outputs
 temp-audio.m4a
 
+## instagram session file
+session_base64.txt
+session.json
+output.mp4
+output.mp4.jpg
+sent_notification.py
+uppload.py
+twilio_2FA_recovery_code.txt
 
 # Logs
 *.log

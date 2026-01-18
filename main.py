@@ -7,6 +7,8 @@ import numpy as np
 import textwrap
 import re,json,base64
 from instagrapi import Client
+from twilio.rest import Client as TwilioClient
+
 
 # ENV
 from dotenv import load_dotenv
@@ -41,6 +43,23 @@ VIDEO_TEMPLATE = os.path.join(BASE_DIR, "template.mp4")
 OUTPUT_VIDEO = os.path.join(BASE_DIR, "output.mp4")
 FONT_PATH = os.path.join(BASE_DIR, "fonts", "Roboto-Bold.ttf")
 MUSIC_FILE = os.path.join(BASE_DIR, "music.mp3")
+
+
+#send notifications
+def send_whatsapp(msg):
+    client = TwilioClient(
+        os.getenv("TWILIO_SID"),
+        os.getenv("TWILIO_TOKEN")
+    )
+    print(os.getenv("TWILIO_WHATSAPP_FROM"),os.getenv("TWILIO_WHATSAPP_TO"),os.getenv("TWILIO_SID"),os.getenv("TWILIO_TOKEN"))
+    message = client.messages.create(
+        body=msg,
+        from_=os.getenv("TWILIO_WHATSAPP_FROM"),
+        to=os.getenv("TWILIO_WHATSAPP_TO")
+    )
+    print("WhatsApp sent:", message.sid)
+
+
 
 
 def load_google_sheet(url):
@@ -193,6 +212,16 @@ print("Session loaded! You can upload now.")
 
 # Upload photo
 photo_path = "output.mp4"
-cl.video_upload(photo_path, caption)
-
+media = cl.video_upload(photo_path, caption)
+post_url = f"https://www.instagram.com/p/{media.code}/"
 print("Upload successful!")
+
+#send notifications
+send_whatsapp(
+    f"✅ Instagram video posted successfully!\n"
+    f"📅 {today}\n"
+    f"🔗 {post_url}"
+)
+print("Whatsapp notification sent!")
+
+
