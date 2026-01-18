@@ -122,7 +122,7 @@ InstaReelBot/
 
 If you like this project, you can support it:
 
-☕ [Buy me a coffee](https://www.buymeacoffee.com/yourusername)
+☕ [Buy me a coffee](https://buymeacoffee.com/srideviman7)
 
 ## License
 
