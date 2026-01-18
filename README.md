@@ -1,111 +1,111 @@
-📹 InstaReelBot – Automated Instagram Video Poster with WhatsApp Notification
+# 📹 InstaReelBot – Automated Instagram Video Poster with WhatsApp Notification
 
-Overview
+## Overview
 
 InstaReelBot is a Python automation tool that:
 
-Fetches the content (overlay text + caption) for today from a Google Sheet
-
-Generates a video by overlaying styled text on a video template
-
-Uploads the video to Instagram automatically
-
-Sends a WhatsApp notification with the post link after upload
+- Fetches content (overlay text + caption) for today from a Google Sheet
+- Generates a video by overlaying styled text on a video template
+- Uploads the video to Instagram automatically
+- Sends a WhatsApp notification with the post link after upload
 
 This enables fully automated Instagram posting for daily content with minimal effort.
 
-Features
+## Features
 
-✅ Fetch required data from Google Sheet
+- ✅ Fetch required data from Google Sheet
+- ✅ Add rounded, shadowed, wrapped overlay text to video
+- ✅ Sync background music to video duration
+- ✅ Upload video to Instagram with caption
+- ✅ Send WhatsApp notification with post link
 
-✅ Add rounded, shadowed, wrapped overlay text to video
+## Demo
 
-✅ Sync background music to video duration
+Here's an example of the generated video with overlay text:
 
-✅ Upload video to Instagram with caption
+[🎥 View Example Video](https://res.cloudinary.com/dgjarosa2/video/upload/v1768711347/output_nvjihq.mp4)
 
-✅ Send WhatsApp notification with post link
+## Installation
 
-Example
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/sridevi14/InstaReelBot.git
+   cd InstaReelBot
+   ```
 
-Overlay Preview →
+2. **Create and activate virtual environment**
+   ```bash
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # macOS/Linux
+   source venv/bin/activate
+   ```
 
-Final uploaded video → You can add your video file or a link here, e.g., [output.mp4](example_video.mp4)
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-WhatsApp notification screenshot → optional: add image like [WhatsApp Screenshot](example_whatsapp.png)
+### Dependencies
 
-✅ Make sure your images/videos are hosted online (Cloudinary, GitHub, etc.) or include locally in repo. Your URL above is fine if accessible publicly.
+- moviepy
+- pandas
+- Pillow
+- numpy
+- instagrapi
+- twilio
+- python-dotenv
 
-Setup
-1️⃣ Install Python dependencies
-git clone https://github.com/yourusername/InstaReelBot.git
-cd InstaReelBot
-python -m venv venv
-# Activate virtual environment
-venv\Scripts\activate   # Windows
-# or
-source venv/bin/activate # macOS/Linux
-pip install -r requirements.txt
+## Configuration
 
+1. **Create a `.env` file in the project root with the following variables:**
 
-Dependencies include:
+   ```env
+   IG_USERNAME=your_instagram_username
+   IG_PASSWORD=your_instagram_password
+   IG_SESSION=base64_instagram_session
+   GOOGLE_SHEET_URL=https://docs.google.com/spreadsheets/d/...
+   TWILIO_SID=ACxxxxxxxxxxxxxxxx
+   TWILIO_TOKEN=xxxxxxxxxxxx
+   TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
+   TWILIO_WHATSAPP_TO=whatsapp:+91XXXXXXXXXX
+   ```
 
-moviepy
-pandas
-Pillow
-numpy
-instagrapi
-twilio
-python-dotenv
+   > **Tip:** Join the Twilio Sandbox from your personal WhatsApp to receive messages.
 
-2️⃣ Configure environment variables
+2. **Add Assets**
 
-Create a .env file in project root:
+   Place these files in the project root:
 
-IG_USERNAME=your_instagram_username
-IG_PASSWORD=your_instagram_password
-IG_SESSION=base64_instagram_session
-GOOGLE_SHEET_URL=https://docs.google.com/spreadsheets/d/...
-TWILIO_SID=ACxxxxxxxxxxxxxxxx
-TWILIO_TOKEN=xxxxxxxxxxxx
-TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
-TWILIO_WHATSAPP_TO=whatsapp:+91XXXXXXXXXX
+   - `template.mp4` → Video template
+   - `music.mp3` → Background music
+   - `fonts/Roboto-Bold.ttf` → Font for overlay
 
-
-Tip: Join Twilio Sandbox from your personal WhatsApp to receive messages.
-
-3️⃣ Add Assets
-
-Place these files in the project root:
-
-template.mp4 → Video template
-
-music.mp3 → Background music
-
-fonts/Roboto-Bold.ttf → Font for overlay
-
-Usage
+## Usage
 
 Run the bot:
 
+```bash
 python main.py
+```
 
+### What happens:
 
-What happens:
+1. Reads today's row from Google Sheet (OverlayText + Caption)
+2. Generates a video with overlay text and background music
+3. Uploads the video to Instagram using the saved session
+4. Sends WhatsApp notification with post URL:
 
-Reads today’s row from Google Sheet (OverlayText + Caption)
+   ```
+   ✅ Instagram video posted successfully!
+   📅 2026-01-18
+   🔗 https://www.instagram.com/p/XXXXXXXXX/
+   ```
 
-Generates a video with overlay text and background music
+## File Structure
 
-Uploads the video to Instagram using the saved session
-
-Sends WhatsApp notification with post URL:
-
-✅ Instagram video posted successfully!
-📅 2026-01-18
-🔗 https://www.instagram.com/p/XXXXXXXXX/
-
-File Structure
+```
 InstaReelBot/
 │
 ├─ fonts/
@@ -116,12 +116,14 @@ InstaReelBot/
 ├─ requirements.txt
 ├─ .env
 └─ README.md
+```
 
-Optional: Support / Buy Me a Coffee
+## Support
 
 If you like this project, you can support it:
-☕ Buy me a coffee
 
-License
+☕ [Buy me a coffee](https://www.buymeacoffee.com/yourusername)
+
+## License
 
 MIT License – free to use, modify, and distribute.
