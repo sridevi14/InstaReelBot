@@ -35,12 +35,14 @@ jobs:
       # Step 6: Run your bot
       - name: Run Bot
         env:
-          IG_USERNAME: ${{ secrets.IG_USERNAME }}
-          IG_PASSWORD: ${{ secrets.IG_PASSWORD }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
           GOOGLE_SHEET_URL: ${{ secrets.GOOGLE_SHEET_URL }}
-          IG_SESSION : ${{ secrets.IG_SESSION  }}
           TWILIO_SID: ${{ secrets.TWILIO_SID }}
           TWILIO_TOKEN : ${{ secrets.TWILIO_TOKEN  }}
           TWILIO_WHATSAPP_FROM: ${{ secrets.TWILIO_WHATSAPP_FROM }}
           TWILIO_WHATSAPP_TO : ${{ secrets.TWILIO_WHATSAPP_TO  }}
+          CLOUDINARY_CLOUD_NAME : ${{ secrets.CLOUDINARY_CLOUD_NAME  }}
+          CLOUDINARY_API_KEY : ${{ secrets.CLOUDINARY_API_KEY  }}
+          CLOUDINARY_API_SECRET : ${{ secrets.CLOUDINARY_API_SECRET  }}
         run: python main.py
