@@ -1,227 +1,99 @@
-from moviepy.editor import VideoFileClip,AudioFileClip
-import pandas as pd
-from instagrapi import Client
-from datetime import date
-from PIL import Image, ImageDraw, ImageFont,ImageFilter
-import numpy as np
-import textwrap
-import re,json,base64
-from instagrapi import Client
-from twilio.rest import Client as TwilioClient
+#!/usr/bin/env python3
+"""
+Instagram Automation Script
+Automatically creates and posts videos to Instagram based on Google Sheets schedule
+"""
+
+import sys
+import traceback
+
+from config import Config
+from data_loader import get_today_content
+from video_creator import create_video
+from cloudinary_service import CloudinaryService
+from instagram_service import InstagramService
+from notification_service import NotificationService
 
 
-# ENV
-from dotenv import load_dotenv
-import os
+def main():
+    """Main application workflow"""
+    try:
+        # Step 1: Validate configuration
+        print("=" * 60)
+        print("INSTAGRAM AUTOMATION WORKFLOW")
+        print("=" * 60)
 
-load_dotenv()
+        Config.validate()
+        Config.ensure_directories()
+        print("✓ Configuration validated")
 
-USERNAME = os.getenv("IG_USERNAME")
+        # Step 2: Load today's content from Google Sheets
+        print("\n[1/5] Loading content from Google Sheets...")
+        overlay_text, caption, today = get_today_content(Config.GOOGLE_SHEET_URL)
 
-print("USERNAME:", USERNAME)
-PASSWORD = os.getenv("IG_PASSWORD")
-print("PASSWORD:", PASSWORD)
+        if not overlay_text or not caption:
+            print(f"✗ No content found for today: {today}")
+            print("Exiting...")
+            sys.exit(0)
 
-GOOGLE_SHEET_URL = os.getenv("GOOGLE_SHEET_URL")
+        print(f"✓ Content loaded for {today}")
+        print(f"  Overlay Text: {overlay_text[:50]}...")
+        print(f"  Caption: {caption[:50]}...")
 
-print("GOOGLE_SHEET_URL:", GOOGLE_SHEET_URL)
+        # Step 3: Create video
+        print(f"\n[2/5] Creating video...")
+        video_path = create_video(overlay_text, Config)
+        print(f"✓ Video created successfully")
 
+        # Step 4: Upload to Cloudinary
+        print(f"\n[3/5] Uploading to Cloudinary...")
+        cloudinary_service = CloudinaryService(Config)
+        video_url, public_id = cloudinary_service.upload_video(video_path)
 
-if not USERNAME:
-    raise ValueError("Instagram Username not found in environment variables")
+        # Step 5: Post to Instagram
+        print(f"\n[4/5] Posting to Instagram...")
+        instagram_service = InstagramService(Config)
+        post_id, post_url = instagram_service.post_video(video_url, caption)
 
-if not PASSWORD:
-    raise ValueError("Instagram PASSWORD not found in environment variables")
+        # Step 6: Cleanup - Delete from Cloudinary
+        print(f"\n[5/5] Cleaning up...")
+        cloudinary_service.delete_video(public_id)
 
-if not GOOGLE_SHEET_URL:
-    raise ValueError("GOOGLE_SHEET_URL not found in environment variables")
+        # Step 7: Send success notification
+        print(f"\n[✓] Sending notification...")
+        notification_service = NotificationService(Config)
+        notification_service.send_success_notification(today, post_url)
 
+        # Final summary
+        print("\n" + "=" * 60)
+        print("SUCCESS! Video posted to Instagram")
+        print("=" * 60)
+        print(f"📅 Date: {today}")
+        print(f"🔗 URL: {post_url}")
+        print(f"📝 Caption: {caption[:100]}...")
+        print("=" * 60)
 
-# ---------- CONFIG ----------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-VIDEO_TEMPLATE = os.path.join(BASE_DIR, "template.mp4")
-OUTPUT_VIDEO = os.path.join(BASE_DIR, "output.mp4")
-FONT_PATH = os.path.join(BASE_DIR, "fonts", "Roboto-Bold.ttf")
-MUSIC_FILE = os.path.join(BASE_DIR, "music.mp3")
+        return 0
 
+    except Exception as e:
+        print("\n" + "=" * 60)
+        print("ERROR OCCURRED")
+        print("=" * 60)
+        print(f"❌ {str(e)}")
+        print("\nFull traceback:")
+        traceback.print_exc()
+        print("=" * 60)
 
-#send notifications
-def send_whatsapp(msg):
-    client = TwilioClient(
-        os.getenv("TWILIO_SID"),
-        os.getenv("TWILIO_TOKEN")
-    )
-    print(os.getenv("TWILIO_WHATSAPP_FROM"),os.getenv("TWILIO_WHATSAPP_TO"),os.getenv("TWILIO_SID"),os.getenv("TWILIO_TOKEN"))
-    message = client.messages.create(
-        body=msg,
-        from_=os.getenv("TWILIO_WHATSAPP_FROM"),
-        to=os.getenv("TWILIO_WHATSAPP_TO")
-    )
-    print("WhatsApp sent:", message.sid)
+        # Send error notification
+        try:
+            from datetime import date
+            notification_service = NotificationService(Config)
+            notification_service.send_error_notification(date.today(), str(e))
+        except:
+            print("Failed to send error notification")
 
-
-
-
-def load_google_sheet(url):
-    sheet_id = re.search(r"/d/([a-zA-Z0-9-_]+)", url).group(1)
-    csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
-    return pd.read_csv(csv_url)
-
-# ---------- READ EXCEL ----------
-df = load_google_sheet(GOOGLE_SHEET_URL)
-df["Date"] = pd.to_datetime(df["Date"]).dt.date
-today = date.today()
-
-today_rows = df[df["Date"] == today]
-if today_rows.empty:
-    print("No content found for today:", today)
-    exit()
-
-row = today_rows.iloc[0]
-overlay_text = str(row["OverlayText"])
-caption = str(row["Caption"])
-
-
-# ---------- LOAD VIDEO ----------
-video = VideoFileClip(VIDEO_TEMPLATE)
-audio = AudioFileClip(MUSIC_FILE) \
-        .subclip(0, video.duration) \
-        .volumex(0.7) \
-        .set_fps(44100)
-
-
-w, h = video.size
-
-# ---------- STYLE SETTINGS ----------
-border_radius = 25           # Rounded corner radius
-bg_color = (255, 255, 255, 240)  # White with slight transparency
-shadow_offset = 8            # Shadow distance
-shadow_blur = 15             # Shadow blur radius
-text_color = "black"
-font_size = 60
-padding_x = 50
-padding_y = 40
-
-# ---------- CREATE TEXT OVERLAY IMAGE ----------
-# Create image larger to accommodate shadow
-shadow_space = shadow_blur + shadow_offset
-img = Image.new("RGBA", (w + shadow_space * 2, h + shadow_space * 2), (0, 0, 0, 0))
-draw = ImageDraw.Draw(img)
-
-font = ImageFont.truetype(FONT_PATH, font_size)
-
-# Wrap text
-max_chars_per_line = 25
-lines = textwrap.wrap(overlay_text, width=max_chars_per_line)
-
-# Calculate box size
-line_heights = []
-line_widths = []
-for line in lines:
-    bbox = draw.textbbox((0, 0), line, font=font)
-    line_w = bbox[2] - bbox[0]
-    line_h = bbox[3] - bbox[1]
-    line_widths.append(line_w)
-    line_heights.append(line_h)
-
-box_w = max(line_widths) + padding_x * 2
-box_h = sum(line_heights) + padding_y * 2 + (len(lines) - 1) * 10
-
-# Position (accounting for shadow space)
-x = (w - box_w) // 2 + shadow_space
-y = (h - box_h) // 2 + shadow_space
-
-# ---------- DRAW SHADOW ----------
-shadow_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
-shadow_draw = ImageDraw.Draw(shadow_layer)
-shadow_draw.rounded_rectangle(
-    [(x + shadow_offset, y + shadow_offset),
-     (x + box_w + shadow_offset, y + box_h + shadow_offset)],
-    radius=border_radius,
-    fill=(0, 0, 0, 80)  # Semi-transparent black
-)
-shadow_layer = shadow_layer.filter(ImageFilter.GaussianBlur(shadow_blur))
-
-# ---------- DRAW ROUNDED RECTANGLE BACKGROUND ----------
-bg_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
-bg_draw = ImageDraw.Draw(bg_layer)
-bg_draw.rounded_rectangle(
-    [(x, y), (x + box_w, y + box_h)],
-    radius=border_radius,
-    fill=bg_color
-)
-
-# Composite shadow and background
-img = Image.alpha_composite(img, shadow_layer)
-img = Image.alpha_composite(img, bg_layer)
-
-# ---------- DRAW TEXT ----------
-draw = ImageDraw.Draw(img)
-current_y = y + padding_y
-for i, line in enumerate(lines):
-    # Center each line
-    bbox = draw.textbbox((0, 0), line, font=font)
-    line_w = bbox[2] - bbox[0]
-    text_x = x + (box_w - line_w) // 2
-
-    draw.text(
-        (text_x, current_y),
-        line,
-        font=font,
-        fill=text_color
-    )
-    current_y += line_heights[i] + 10
-
-# Crop back to original size (remove shadow space)
-img = img.crop((shadow_space, shadow_space, w + shadow_space, h + shadow_space))
-
-# ---------- APPLY OVERLAY ON EACH FRAME ----------
-def add_text(get_frame, t):
-    frame = get_frame(t)
-    pil_im = Image.fromarray(frame)
-    pil_im.paste(img, (0, 0), img)
-    return np.array(pil_im)
-
-video_with_text = video.fl(add_text)
-final_video = video_with_text.set_audio(audio)
-# ---------- EXPORT ----------
-final_video.write_videofile(
-    OUTPUT_VIDEO,
-    fps=24,
-    codec="libx264",
-    audio_codec="aac",
-    audio_bitrate="192k",
-    temp_audiofile="temp-audio.m4a",
-    remove_temp=True
-)
-
-print("Final duration:", final_video.duration)
-print("Has audio:", final_video.audio is not None)
+        return 1
 
 
-# ---------- UPLOAD TO INSTAGRAM ----------
-# Login
-cl = Client()
-session_b64 = os.getenv("IG_SESSION")
-if not session_b64:
-    raise ValueError("IG_SESSION not found in .env")
-# Load session from GitHub secret
-session_data = json.loads(base64.b64decode(session_b64))
-cl.set_settings(session_data)
-print("Session loaded! You can upload now.")
-
-# Upload photo
-photo_path = "output.mp4"
-media = cl.video_upload(photo_path, caption)
-post_url = f"https://www.instagram.com/p/{media.code}/"
-print("Upload successful!")
-
-#send notifications
-send_whatsapp(
-    f"✅ Instagram video posted successfully!\n"
-    f"📅 {today}\n"
-    f"🔗 {post_url}"
-)
-print("Whatsapp notification sent!")
-
-
+if __name__ == "__main__":
+    sys.exit(main())

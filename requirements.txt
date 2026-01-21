@@ -1,7 +1,7 @@
 moviepy
 pandas
-instagrapi
 openpyxl
 numpy>=1.26.0,<3.0.0
 python-dotenv
 twilio
+cloudinary
