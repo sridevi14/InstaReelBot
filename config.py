@@ -29,6 +29,8 @@ class Config:
     VIDEO_TEMPLATE = os.path.join(BASE_DIR, "template.mp4")
     OUTPUT_VIDEO = os.path.join(BASE_DIR, "output.mp4")
     FONT_PATH = os.path.join(BASE_DIR, "fonts", "Roboto-Bold.ttf")
+    EMOJI_FONT_PATH = os.path.join(BASE_DIR, "fonts", "emoji.ttf")
+
     MUSIC_FILE = os.path.join(BASE_DIR, "music.mp3")
 
     # Video settings
@@ -37,16 +39,17 @@ class Config:
     AUDIO_VOLUME = 0.7
 
     # Text overlay settings
-    BORDER_RADIUS = 25
-    BG_COLOR = (255, 230, 0, 240)
-    SHADOW_OFFSET = 8
-    SHADOW_BLUR = 15
-    TEXT_COLOR = (0, 0, 0, 255)
-    FONT_SIZE = 60
-    PADDING_X = 50
-    PADDING_Y = 40
+    SECONDARY_TEXT_COLOR = "yellow"
     MAX_CHARS_PER_LINE = 25
-
+    FONT_SIZE = 64
+    LINE_HEIGHT_MULTIPLIER = 1.3
+    PADDING_X = 40
+    PADDING_Y = 30
+    BORDER_RADIUS = 28
+    SHADOW_BLUR = 20
+    SHADOW_OFFSET = 6
+    TEXT_COLOR = (255, 255, 255, 255)
+    BG_COLOR = (20, 20, 20, 220)
 
 
     # Instagram API settings
